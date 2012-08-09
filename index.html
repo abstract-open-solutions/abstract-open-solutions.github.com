@@ -11,6 +11,36 @@
     <script type="text/javascript">
     (function ($, undefined) {
 
+      var allowed_repos = [
+        'abstract.markasread',
+        'satchmo-utils',
+        'code-illuminated',
+        'fireless',
+        'djc.recipe2',
+        'abstract.richdescription',
+        'abstract.recipe.jenkinsdeploy',
+        'Jenkins-Buildout',
+        'abstract.wkhtmltopdf',
+        'abstract.recipe.haystack-solr',
+        'abstract.widgets.multitree',
+      ]
+
+      var prj_extra_cat = {
+        'abstract.markasread': 'plone',
+        'abstract.richdescription': 'plone',
+        'abstract.wkhtmltopdf': 'plone',
+        'abstract.widgets.multitree': 'plone',
+        'djc.recipe2': 'django',
+        'satchmo-utils': 'django satchmo',
+      }
+
+      var custom_title = {
+        'abstract.markasread': 'Mark as read',
+        'abstract.richdescription': 'Rich description',
+        'abstract.wkhtmltopdf': 'Wkhtmltopdf for plone',
+        'abstract.widgets.multitree': 'Multitree widget',
+      }
+
       // Put custom repo URL's in this object, keyed by repo name.
       var repoUrls = {
         // "abstract.markasread": "http://abstract.github.com/abstract.markasread/",
@@ -52,9 +82,20 @@
       }
 
       function addRepo(repo) {
-        var $item = $("<li>").addClass("repo grid-1 " + (repo.language || '').toLowerCase());
+        css_class = "repo grid-1 " + (repo.language || '').toLowerCase();
+        if (prj_extra_cat[repo.name]) {
+          css_class += ' ' + prj_extra_cat[repo.name];
+        }
+
+        var $item = $("<li>").addClass(css_class);
         var $link = $("<a>").attr("href", repoUrl(repo)).appendTo($item);
-        $link.append($("<h2>").text(repo.name));
+
+        var title = repo.name;
+        if (custom_title[repo.name]){
+          title = custom_title[repo.name];
+        }
+
+        $link.append($("<h2>").text(title));
         $link.append($("<h3>").text(repo.language));
         $link.append($("<p>").text(repoDescription(repo)));
         $item.appendTo("#repos");
@@ -101,7 +142,9 @@
               });
 
               $.each(repos, function (i, repo) {
-                addRepo(repo);
+                if (allowed_repos.indexOf(repo.name) != -1) {
+                  addRepo(repo);
+                }
               });
 
               // Sort by most-recently pushed to.
